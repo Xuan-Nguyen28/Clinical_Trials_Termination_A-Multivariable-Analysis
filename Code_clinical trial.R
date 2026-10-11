@@ -24,42 +24,42 @@ install.packages("tidytext")
 du_lieu <- read_csv("F:/Dataset/archive/clin_trials.csv")
 glimpse(du_lieu)
 ## Clean data
-> trials_clean <- du_lieu %>%
-    +     mutate(
-        +         #  `Start Date` 
-            +         start_year = str_extract(`Start Date`, "^\\d{4}") %>% as.numeric(),
-        +         
-            +         #  `Organization Class`
-            +         sponsor_type = case_when(
-                +             `Organization Class` == "INDUSTRY" ~ "Industry",
-                +             `Organization Class` == "OTHER"    ~ "Academic / Hospital",
-                +             `Organization Class` %in% c("NIH", "FED") ~ "Government",
-                +             TRUE ~ "Other / Unknown"
-                +         ),
-        +         
-            +         # Phase clean `Phases`
-            +         phase_clean = case_when(
-                +             str_detect(Phases, "PHASE1") ~ "Phase 1",
-                +             str_detect(Phases, "PHASE2") ~ "Phase 2",
-                +             str_detect(Phases, "PHASE3") ~ "Phase 3",
-                +             str_detect(Phases, "PHASE4") ~ "Phase 4",
-                +             is.na(Phases) | Phases == "Unknown" ~ "Not Specified",
-                +             TRUE ~ "Other / Early Phase"
-                +         )
-        +     ) %>%
-    +     # Research from 2000 until now
-    +     filter(!is.na(start_year) & start_year >= 2000 & start_year <= 2026)
-> 
-    > # 3. Filter from  `Conditions`
-    > top_conditions <- trials_clean %>%
-    +     filter(!is.na(Conditions)) %>%
-    +     separate_rows(Conditions, sep = ",\\s*") %>%
-    +     mutate(Conditions = str_trim(Conditions)) %>%
-    +     count(Conditions, sort = TRUE) %>%
-    +     head(15)
-> View(trials_clean)
-> library(tidyverse)
-> library(gtsummary)
+trials_clean <- du_lieu %>%
+    mutate(
+        #Start Date` 
+        start_year = str_extract(`Start Date`, "^\\d{4}") %>% as.numeric(),
+             
+            #  `Organization Class`
+            sponsor_type = case_when(
+                `Organization Class` == "INDUSTRY" ~ "Industry",
+                `Organization Class` == "OTHER"    ~ "Academic / Hospital",
+                `Organization Class` %in% c("NIH", "FED") ~ "Government",
+                TRUE ~ "Other / Unknown"
+                 ),
+        
+              # Phase clean `Phases`
+            phase_clean = case_when(
+                str_detect(Phases, "PHASE1") ~ "Phase 1",
+                str_detect(Phases, "PHASE2") ~ "Phase 2",
+                str_detect(Phases, "PHASE3") ~ "Phase 3",
+                str_detect(Phases, "PHASE4") ~ "Phase 4",
+                is.na(Phases) | Phases == "Unknown" ~ "Not Specified",
+                TRUE ~ "Other / Early Phase"
+                      )
+            ) %>%
+# Research from 2000 until now
+     filter(!is.na(start_year) & start_year >= 2000 & start_year <= 2026)
+
+     # 3. Filter from  `Conditions`
+    top_conditions <- trials_clean %>%
+    filter(!is.na(Conditions)) %>%
+    separate_rows(Conditions, sep = ",\\s*") %>%
+    mutate(Conditions = str_trim(Conditions)) %>%
+    count(Conditions, sort = TRUE) %>%
+    head(15)
+View(trials_clean)
+library(tidyverse)
+library(gtsummary)
 # 4. Filter from `Medical Subject Headings`
 top_mesh <- trials_clean %>%
     filter(!is.na(`Medical Subject Headings`)) %>%
